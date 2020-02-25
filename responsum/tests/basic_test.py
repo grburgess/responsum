@@ -21,9 +21,9 @@ def test_instrument_response():
     
     matrix = np.identity(nside)
 
-    ebounds = np.range(nside+1)
+    ebounds = np.arange(nside+1)
 
-    mc = np.range(nside+1)
+    mc = np.arange(nside+1)
 
     rsp = InstrumentResponse(matrix,ebounds,mc)
 
