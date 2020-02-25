@@ -123,8 +123,6 @@ setup(
     },
     license='GPL3',
 
-    ext_modules=extensions,
-
     cmdclass={
         'upload': UploadCommand,
     },
