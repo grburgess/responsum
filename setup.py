@@ -1,5 +1,5 @@
 from setuptools.command.build_ext import build_ext as _build_ext
-from setuptools import find_packages, Command # Extension
+from setuptools import find_packages, Command, setup
 import os
 import io
 import sys
