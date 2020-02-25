@@ -33,25 +33,19 @@ import pkg_resources
 
 
 _NUMPY_TO_FITS_CODE = {
-
     # Integers
-
-    np.int16: 'I',
-    np.int32: 'J',
-    np.int64: 'K',
-    np.uint16: 'I',
-    np.uint32: 'J',
-
+    np.int16: "I",
+    np.int32: "J",
+    np.int64: "K",
+    np.uint16: "I",
+    np.uint32: "J",
     # Floating point
-
-    np.float32: 'E',
-    np.float64: 'D',
-
-    }
+    np.float32: "E",
+    np.float64: "D",
+}
 
 
 class FITSFile(object):
-
     def __init__(self, primary_hdu=None, fits_extensions=None):
 
         hdu_list = []
@@ -70,13 +64,12 @@ class FITSFile(object):
 
             fits_extensions = list(fits_extensions)
 
-            hdu_list.extend(map(lambda x:x.hdu, fits_extensions))
+            hdu_list.extend(map(lambda x: x.hdu, fits_extensions))
 
         # We embed instead of subclassing because the HDUList class has some weird interaction with the
         # __init__ and __new__ methods which makes difficult to do so (we couldn't figure it out)
 
         self._hdu_list = fits.HDUList(hdus=hdu_list)
-
 
     def writeto(self, *args, **kwargs):
 
@@ -103,14 +96,12 @@ class FITSFile(object):
     index_of.__doc__ = fits.HDUList.index_of.__doc__
 
 
-
-
 class FITSExtension(object):
 
     # I use __new__ instead of __init__ because I need to use the classmethod .from_columns instead of the
     # constructor of fits.BinTableHDU
 
-    def __init__(self, data_tuple, header_tuple):
+    def __init__(self, data_tuple, header_tuple, creator=None):
 
         # Generate the header from the dictionary
 
@@ -152,7 +143,7 @@ class FITSExtension(object):
 
                 if test_value.shape:
 
-                    format = '%i%s' % (test_value.shape[0], format)
+                    format = "%i%s" % (test_value.shape[0], format)
 
                 # Store the unit as text
 
@@ -165,14 +156,13 @@ class FITSExtension(object):
 
                 max_string_length = max(len(max(column_data, key=len)), 1)
 
-                format = '%iA' % max_string_length
+                format = "%iA" % max_string_length
 
             elif np.isscalar(test_value):
 
                 format = _NUMPY_TO_FITS_CODE[np.array(test_value).dtype.type]
 
             elif isinstance(test_value, list) or isinstance(test_value, np.ndarray):
-
 
                 # Probably a column array
                 # Check that we can convert it to a proper numpy type
@@ -185,7 +175,9 @@ class FITSExtension(object):
 
                 except:
 
-                    raise RuntimeError("Could not understand type of column %s" % column_name)
+                    raise RuntimeError(
+                        "Could not understand type of column %s" % column_name
+                    )
 
                 # Make sure we are not dealing with objects
                 assert col_type != np.object and col_type != np.object_
@@ -196,45 +188,57 @@ class FITSExtension(object):
 
                 except:
 
-                    raise RuntimeError("Column %s contain data which cannot be coerced to %s" % (column_name, col_type))
-
-
+                    raise RuntimeError(
+                        "Column %s contain data which cannot be coerced to %s"
+                        % (column_name, col_type)
+                    )
 
                 else:
 
                     # see if it is a string array
 
-                    if (test_value.dtype.type == np.string_):
+                    if test_value.dtype.type == np.string_:
 
                         max_string_length = max(column_data, key=len).dtype.itemsize
 
-
-                        format = '%iA' % max_string_length
+                        format = "%iA" % max_string_length
 
                     else:
 
                         # All good. Check the length
                         # NOTE: variable length arrays are not supported
                         line_length = len(test_value)
-                        format = '%i%s' % (line_length, _NUMPY_TO_FITS_CODE[col_type])
+                        format = "%i%s" % (line_length, _NUMPY_TO_FITS_CODE[col_type])
 
             else:
 
                 # Something we do not know
 
-                raise RuntimeError("Column %s in dataframe contains objects which are not strings" % column_name)
+                raise RuntimeError(
+                    "Column %s in dataframe contains objects which are not strings"
+                    % column_name
+                )
 
-            this_column = fits.Column(name=column_name, format=format, unit=units, array=column_data)
+            this_column = fits.Column(
+                name=column_name, format=format, unit=units, array=column_data
+            )
 
             fits_columns.append(this_column)
 
         # Create the extension
 
-        self._hdu = fits.BinTableHDU.from_columns(fits.ColDefs(fits_columns), header=header)
+        self._hdu = fits.BinTableHDU.from_columns(
+            fits.ColDefs(fits_columns), header=header
+        )
 
-        # update the header to indicate that the file was created by 3ML
-        self._hdu.header.set('CREATOR', "RESPONSUM v.%s" % (pkg_resources.get_distribution("responsum").version),
-             "(J. Burgess, jburgess@mpe.mpg.de)")
+        # update the header to indicate that the file was created by Responsum
+
+        if creator is None:
+            creator = "RESPONSUM v.%s" % (
+                pkg_resources.get_distribution("responsum").version
+            )
+
+        self._hdu.header.set("CREATOR", creator, "(J. Burgess, jburgess@mpe.mpg.de)")
 
     @property
     def hdu(self):
@@ -244,18 +248,14 @@ class FITSExtension(object):
     @classmethod
     def from_fits_file_extension(cls, fits_extension):
 
-
         data = fits_extension.data
 
         data_tuple = []
 
         for name in data.columns.names:
 
-
-            data_tuple.append((name,data[name]))
-
-
+            data_tuple.append((name, data[name]))
 
         header_tuple = fits_extension.header.items()
 
-        return cls(data_tuple,header_tuple)
+        return cls(data_tuple, header_tuple)
