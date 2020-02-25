@@ -12,7 +12,7 @@ import astropy.units as u
 from responsum.utils.file_utils import file_existing_and_readable, sanitize_filename
 from responsum.utils.fits_file import FITSExtension, FITSFile
 
-
+# NOTE: Much of this code comes from 3ML developed by Giacomo Vianello and myself ( J. Michael Burgess)
 
 
 class NoCoverageIntervals(RuntimeError):
