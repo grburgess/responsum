@@ -21,6 +21,7 @@ REQUIRED = [
     'astropy',
     'scipy',
     'h5py',
+    'matplotlib'
 ]
 
 # What packages are optional?
