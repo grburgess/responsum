@@ -17,7 +17,7 @@ install:
   - python setup.py install
 script:
   - python -m pytest -vv --cov=responsum/
-#  - codecov --token=39cbd278-9065-488d-b323-b2b3dcc4ce1e
+  - codecov --token=8737e56f-3b56-4abd-b678-acc8f7f0bb99
 
 
 
