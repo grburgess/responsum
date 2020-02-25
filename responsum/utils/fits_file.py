@@ -3,6 +3,9 @@ import numpy as np
 import astropy.units as u
 import pkg_resources
 
+# NOTE: Much of this code comes from 3ML developed by Giacomo Vianello and myself ( J. Michael Burgess)
+
+
 # From https://heasarc.gsfc.nasa.gov/docs/software/fitsio/c/c_user/node20.html
 # Codes for the data type of binary table columns and/or for the
 # data type of variables when reading or writing keywords or data:
@@ -230,7 +233,7 @@ class FITSExtension(object):
         self._hdu = fits.BinTableHDU.from_columns(fits.ColDefs(fits_columns), header=header)
 
         # update the header to indicate that the file was created by 3ML
-        self._hdu.header.set('CREATOR', "GBM_DRM_GEN v.%s" % (pkg_resources.get_distribution("gbm_drm_gen").version),
+        self._hdu.header.set('CREATOR', "RESPONSUM v.%s" % (pkg_resources.get_distribution("responsum").version),
              "(J. Burgess, jburgess@mpe.mpg.de)")
 
     @property
