@@ -8,7 +8,9 @@ def test_read_ogip():
 
     data_file = 'test_n6.rsp'
 
-    ogip_rsp = OGIPResponse(rsp_file=data_file)
+    path = get_path_of_data_file(data_file)
+
+    ogip_rsp = OGIPResponse(rsp_file=path)
 
 
 
