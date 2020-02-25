@@ -7,9 +7,9 @@ python:
  
   - "3.6"
   - "3.7"
-# os:
-#   - linux
-#   - osx
+os:
+  - linux
+  - osx
 
 
 install:
