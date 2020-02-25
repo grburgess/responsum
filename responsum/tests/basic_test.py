@@ -18,4 +18,13 @@ def test_instrument_response():
     nside = 50
     
     matrix = np.identity(nside)
-    
+
+    ebounds = np.range(nside+1)
+
+    mc = np.range(nside+1)
+
+    rsp = InstrumentResponse(matrix,ebounds,mc)
+
+    rsp.plot_matrix()
+
+    rsp.to_fits('test','test','test',overwrite=True)
