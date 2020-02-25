@@ -1,0 +1,21 @@
+import numpy as np
+
+from responsum.response import OGIPResponse, InstrumentResponse
+from responsum.utils.package_data import get_path_of_data_file
+
+
+def test_read_ogip():
+
+    data_file = 'test_n6.rsp'
+
+    ogip_rsp = OGIPResponse(rsp_file=data_file)
+
+
+
+
+def test_instrument_response():
+
+    nside = 50
+    
+    matrix = np.identity(nside)
+    
