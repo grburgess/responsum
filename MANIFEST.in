@@ -1,0 +1,2 @@
+include versioneer.py
+include responsum/_version.py
