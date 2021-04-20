@@ -737,15 +737,6 @@ class TimeIntervalSet(IntervalSet):
 
         return df
 
-    def display(self):
-        """
-        Display the time intervals
-
-        :return: None
-        """
-
-        display(self._create_pandas())
-
     def __repr__(self):
 
         return self._create_pandas().to_string()
