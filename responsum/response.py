@@ -1,16 +1,19 @@
-import astropy.io.fits as fits
-import numpy as np
-import warnings
-import matplotlib.cm as cm
-from matplotlib.colors import SymLogNorm
-import matplotlib.pyplot as plt
-from operator import itemgetter, attrgetter
 import copy
 import warnings
-import astropy.units as u
+from operator import attrgetter, itemgetter
 
-from responsum.utils.file_utils import file_existing_and_readable, sanitize_filename
+import astropy.io.fits as fits
+import astropy.units as u
+import matplotlib.cm as cm
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.colors import SymLogNorm
+
+from responsum.utils.file_utils import (file_existing_and_readable,
+                                        sanitize_filename)
 from responsum.utils.fits_file import FITSExtension, FITSFile
+
+from responsum.utils.time_interval import TimeInterval
 
 # NOTE: Much of this code comes from 3ML developed by Giacomo Vianello and myself ( J. Michael Burgess)
 
@@ -87,12 +90,9 @@ class InstrumentResponse(object):
         assert self._matrix.shape == (
             self._ebounds.shape[0] - 1,
             self._mc_energies.shape[0] - 1,
-        ), (
-            "Matrix has the wrong shape. Got %s, expecting %s"
-            % (
-                self._matrix.shape,
-                [self._ebounds.shape[0] - 1, self._mc_energies.shape[0] - 1],
-            )
+        ), "Matrix has the wrong shape. Got %s, expecting %s" % (
+            self._matrix.shape,
+            [self._ebounds.shape[0] - 1, self._mc_energies.shape[0] - 1],
         )
 
         if self._mc_energies.max() < self._ebounds.max():
@@ -646,7 +646,6 @@ class OGIPResponse(InstrumentResponse):
         self.replace_matrix(matrix)
 
 
-
 ####################################################################################
 # The following classes are used to create OGIP-compliant response files
 # (at the moment only RMF are supported)
@@ -726,9 +725,14 @@ class MATRIX(FITSExtension):
         n_mc_channels = len(mc_energies) - 1
         n_channels = len(channel_energies) - 1
 
-        assert matrix.shape == (n_channels, n_mc_channels), (
-            "Matrix has the wrong shape. Should be %i x %i, got %i x %i"
-            % (n_channels, n_mc_channels, matrix.shape[0], matrix.shape[1])
+        assert matrix.shape == (
+            n_channels,
+            n_mc_channels,
+        ), "Matrix has the wrong shape. Should be %i x %i, got %i x %i" % (
+            n_channels,
+            n_mc_channels,
+            matrix.shape[0],
+            matrix.shape[1],
         )
 
         ones = np.ones(n_mc_channels, np.int16)
@@ -802,8 +806,8 @@ class RMF(FITSFile):
 
 class RSP(FITSFile):
     """
-        A response file, the OGIP format for a matrix representing both energy dispersion effects and effective area,
-        in the same matrix.
+    A response file, the OGIP format for a matrix representing both energy dispersion effects and effective area,
+    in the same matrix.
 
     """
 

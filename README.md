@@ -1,4 +1,4 @@
-[![Travis CI w/ Logo](https://img.shields.io/travis/grburgess/responsum/master.svg?logo=travis)](https://travis-ci.org/grburgess/responsum) 
+[![CI](https://github.com/grburgess/responsum/actions/workflows/build_test.yml/badge.svg)](https://github.com/grburgess/responsum/actions/workflows/build_test.yml)
 [![codecov](https://codecov.io/gh/grburgess/responsum/branch/master/graph/badge.svg)](https://codecov.io/gh/grburgess/responsum)
 [![PyPI version fury.io](https://badge.fury.io/py/responsum.svg)](https://pypi.python.org/pypi/responsum/)
 [![PyPi Downloads](http://pepy.tech/badge/responsum)](http://pepy.tech/project/responsum)
