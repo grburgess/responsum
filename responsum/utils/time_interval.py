@@ -4,7 +4,6 @@ import re
 from operator import attrgetter, itemgetter
 
 import numpy as np
-import pandas as pd
 
 
 class IntervalsDoNotOverlap(RuntimeError):
@@ -716,27 +715,3 @@ class TimeIntervalSet(IntervalSet):
         )
 
         return new_set
-
-    def _create_pandas(self):
-
-        time_interval_dict = collections.OrderedDict()
-
-        time_interval_dict["Start"] = []
-        time_interval_dict["Stop"] = []
-        time_interval_dict["Duration"] = []
-        time_interval_dict["Midpoint"] = []
-
-        for i, interval in enumerate(self._intervals):
-
-            time_interval_dict["Start"].append(interval.start)
-            time_interval_dict["Stop"].append(interval.stop)
-            time_interval_dict["Duration"].append(interval.duration)
-            time_interval_dict["Midpoint"].append(interval.half_time)
-
-        df = pd.DataFrame(data=time_interval_dict)
-
-        return df
-
-    def __repr__(self):
-
-        return self._create_pandas().to_string()
