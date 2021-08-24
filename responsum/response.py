@@ -867,7 +867,7 @@ class RSP2(FITSFile):
 
         assert len(list_of_matrices) == len(tstart)
 
-        for matrix, a, b in zip(list_of_matrices, tstart, tstop):
+        for i, (matrix, a, b) in enumerate(zip(list_of_matrices, tstart, tstop)):
         
             # Create MATRIX extension
             matrix_ext = SPECRESP_MATRIX(mc_energies, ebounds, matrix, tstart=a, tstop=b)
@@ -875,6 +875,8 @@ class RSP2(FITSFile):
             # Set telescope and instrument name
             matrix_ext.hdu.header.set("TELESCOP", telescope_name)
             matrix_ext.hdu.header.set("INSTRUME", instrument_name)
+            matrix_ext.hdu.header.set("RSP_NUM", i + 1)
+            matrix_ext.hdu.header.set("EXTVER", i + 1)
 
             all_exts.append(matrix_ext)
 
