@@ -881,5 +881,6 @@ class RSP2(FITSFile):
         # Create FITS file
         super(RSP2, self).__init__(fits_extensions=all_exts)
 
-        self.primary_hdu.header.set("DRM_NUM", instrument_name)
+        # add the DRM num
+        self[0].header.set("DRM_NUM", instrument_name)
     
