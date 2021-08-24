@@ -12,7 +12,6 @@ from matplotlib.colors import SymLogNorm
 from responsum.utils.file_utils import (file_existing_and_readable,
                                         sanitize_filename)
 from responsum.utils.fits_file import FITSExtension, FITSFile
-
 from responsum.utils.time_interval import TimeInterval
 
 # NOTE: Much of this code comes from 3ML developed by Giacomo Vianello and myself ( J. Michael Burgess)
@@ -720,7 +719,7 @@ class MATRIX(FITSExtension):
         ("TLMIN4", 1, "Minimum legal channel number"),
     ]
 
-    def __init__(self, mc_energies, channel_energies, matrix):
+    def __init__(self, mc_energies, channel_energies, matrix, tstart=None, tstop=None):
 
         n_mc_channels = len(mc_energies) - 1
         n_channels = len(channel_energies) - 1
@@ -753,6 +752,15 @@ class MATRIX(FITSExtension):
         # Update DETCHANS
         self.hdu.header.set("DETCHANS", n_channels)
 
+        if tstart is not None:
+
+            self.hdu.header.set("TSTART", tstart)
+
+        if tstop is not None:
+
+            self.hdu.header.set("TSTOP", tstop)
+
+
 
 class SPECRESP_MATRIX(MATRIX):
     """
@@ -765,16 +773,16 @@ class SPECRESP_MATRIX(MATRIX):
     :param matrix: the redistribution matrix, representing energy dispersion effects and effective area information
     """
 
-    def __init__(self, mc_energies, channel_energies, matrix):
+    def __init__(self, mc_energies, channel_energies, matrix, tstart=None, tstop=None):
 
         # This is essentially exactly the same as MATRIX, but with a different extension name
 
-        super(SPECRESP_MATRIX, self).__init__(mc_energies, channel_energies, matrix)
+        super(SPECRESP_MATRIX, self).__init__(mc_energies, channel_energies, matrix, tstart, tstop)
 
         # Change the extension name
         self.hdu.header.set("EXTNAME", "SPECRESP MATRIX")
         self.hdu.header.set("HDUCLAS3", "FULL")
-
+        
 
 class RMF(FITSFile):
     """
@@ -811,7 +819,7 @@ class RSP(FITSFile):
 
     """
 
-    def __init__(self, mc_energies, ebounds, matrix, telescope_name, instrument_name):
+    def __init__(self, mc_energies, ebounds, matrix, telescope_name, instrument_name, tstart=None, tstop=None):
 
         # Make sure that the provided iterables are of the right type for the FITS format
 
@@ -823,11 +831,55 @@ class RSP(FITSFile):
         ebounds_ext = EBOUNDS(ebounds)
 
         # Create MATRIX extension
-        matrix_ext = SPECRESP_MATRIX(mc_energies, ebounds, matrix)
+        matrix_ext = SPECRESP_MATRIX(mc_energies, ebounds, matrix, tstart, tstop)
 
         # Set telescope and instrument name
         matrix_ext.hdu.header.set("TELESCOP", telescope_name)
         matrix_ext.hdu.header.set("INSTRUME", instrument_name)
 
+        
         # Create FITS file
         super(RSP, self).__init__(fits_extensions=[ebounds_ext, matrix_ext])
+
+
+class RSP2(FITSFile):
+    """
+    A response file, the OGIP format for a matrix representing both energy dispersion effects and effective area,
+    in the same matrix.
+
+    """
+
+    def __init__(self, mc_energies, ebounds, list_of_matrices, telescope_name, instrument_name, tstart, tstop):
+
+        # Make sure that the provided iterables are of the right type for the FITS format
+
+        mc_energies = np.array(mc_energies, np.float32)
+
+        ebounds = np.array(ebounds, np.float32)
+
+        # Create EBOUNDS extension
+        ebounds_ext = EBOUNDS(ebounds)
+
+        all_exts = [ebounds_ext]
+
+
+        assert len(tstart) == len(tstop)
+
+        assert len(list_of_matrices) == len(tstart)
+
+        for matrix, a, b in zip(list_of_matrices, tstart, tstop):
+        
+            # Create MATRIX extension
+            matrix_ext = SPECRESP_MATRIX(mc_energies, ebounds, matrix, tstart=a, tstop=b)
+
+            # Set telescope and instrument name
+            matrix_ext.hdu.header.set("TELESCOP", telescope_name)
+            matrix_ext.hdu.header.set("INSTRUME", instrument_name)
+
+            all_exts.append(matrix_ext)
+
+        # Create FITS file
+        super(RSP2, self).__init__(fits_extensions=all_exts)
+
+        self.primary_hdu.header.set("DRM_NUM", instrument_name)
+    
