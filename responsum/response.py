@@ -882,5 +882,5 @@ class RSP2(FITSFile):
         super(RSP2, self).__init__(fits_extensions=all_exts)
 
         # add the DRM num
-        self[0].header.set("DRM_NUM", instrument_name)
+        self[0].header.set("DRM_NUM", len(tstart))
     
